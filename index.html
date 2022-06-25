@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio - Cotação moeda por data</title>
+    <style>
+        fieldset {
+            width: 50%;
+            margin: auto;
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: bisque;
+            border-radius: 20px;
+        }
+
+        p {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        input,
+        data {
+            background-color: bisque;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            text-align: center;
+        }
+
+        select,
+        option {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            text-align: center;
+            border: 1.8px rgb(0, 0, 0);
+            border-style: solid;
+            background-color: bisque;
+        }
+
+        body {
+            background-image: url(moeda.jpg);
+        }
+    </style>
+</head>
+
+<body>
+    <fieldset>
+        <p>Cotação de moedas:</p><br>
+        <label for="IdMoedas">Selecione a moeda: </label>
+        <select name="nmMoedas" id="idMoedas">
+            <option selected disabled hidden>Selecione</option>
+            <option value="AUD"> Dólar australiano </option>
+            <option value="CAD">Dólar canadense</option>
+            <option value="CHF">Franco suíço</option>
+            <option value="DKK">Coroa dinamarquesa</option>
+            <option value="EUR">Euro</option>
+            <option value="GBP">Libra Esterlina</option>
+            <option value="JPY">Iene</option>
+            <option value="NOK">Coroa norueguesa</option>
+            <option value="SEK">Coroa sueca</option>
+            <option value="USD">Dólar dos Estados Unidos</option>
+        </select>
+        <br><br>
+
+        <label for="idData"> Escolha a data:</label>
+        <input type="date" name="nmData" id="idData">
+        <br><br>
+
+        <input type="button" id="idBtoMostrarCot" value="Mostrar cotação">
+        <br><br><br>
+
+        <output id="idOut"></output>
+
+
+
+
+    </fieldset>
+</body>
+<script>
+    var BtoMostrarCot = document.getElementById("idBtoMostrarCot")
+
+
+    BtoMostrarCot.onclick = function () {
+        let moedas = document.getElementById("idMoedas")
+        let MoedaSelec = moedas.options[moedas.selectedIndex].value
+        //let Data = document.getElementById("idData").value
+        //let data = document.querySelector("#idData").value
+        let data = new Date(document.querySelector("#idData").value)
+        let mes = (data.getMonth()) + 1
+        let dia = (data.getDate()) + 1
+        let ano = data.getFullYear()
+        let DataSelec = dia + "/" + mes + "/" + ano
+
+        pegarCotacao(MoedaSelec, DataSelec)
+    }
+
+    function pegarCotacao(MoedaSelec, DataSelec) {
+
+        console.log(MoedaSelec);
+        console.log(DataSelec);
+   
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='" + MoedaSelec + "'&@dataCotacao='" + DataSelec + "'&$top=100&$format=json&$select=paridadeCompra,paridadeVenda,cotacaoCompra,cotacaoVenda,dataHoraCotacao,tipoBoletim")
+
+        xhr.addEventListener("load", function () {
+            var resposta = xhr.responseText;
+            imprimirBoletinsCotacao(resposta)
+        })
+
+        xhr.send()
+    }
+
+    function imprimirBoletinsCotacao(resposta) {
+        let boletinsCotacaoObj = JSON.parse(boletinsCotacao)
+
+        let msn = "("
+        boletinsCotacaoObj.value.forEach(function (boletim) {
+            msn = msn + boletim.paridadeCompra + ";"
+        })
+        msn = msn + ")"
+
+
+        console.log(boletinsCotacaoObj.value[boletinsCotacaoObj.value.length - 1].cotacaoVenda)
+
+        document.getElementById("idOut").value = msn
+    }
+
+
+
+
+</script>
+
+</html>
